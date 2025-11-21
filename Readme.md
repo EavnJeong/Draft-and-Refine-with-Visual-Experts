@@ -12,7 +12,6 @@
 <img src="https://img.shields.io/badge/Framework-PyTorch 2.8-orange" />
 </p>
 
----
 
 # ✨ DnR Extraction Guide
 
@@ -21,7 +20,6 @@ This document summarizes environment preparation, dataset configuration, and ext
 <p align="center">
   <img src="fig/2.png" alt="-" width="800">
 </p>
----
 
 # 🌟 Environment Setup
 
@@ -36,7 +34,7 @@ Use the ChatGPT API for hallucination checks. To do this, execute the following:
 ```
 export OPENAI_API_KEY="sk-proj-..."
 ```
----
+
 
 # 🗂 Config Setup
 
@@ -52,7 +50,7 @@ The file should include:
 • Evaluation file paths when required  
 
 | Dataset | Link |
-|--------|------|
+|-----|------|
 | **VQAv2** | [Official](https://visualqa.org/) • [HuggingFace](https://huggingface.co/datasets/HuggingFaceM4/VQAv2) |
 | **VizWiz** | [Official](https://vizwiz.org/tasks-and-datasets/vqa/) • [Kaggle](https://www.kaggle.com/datasets/ingbiodanielh/vizwiz) |
 | **GQA** | [Official](https://cs.stanford.edu/people/dorarad/gqa/) • [HuggingFace](https://huggingface.co/datasets/lmms-lab/GQA)
@@ -70,7 +68,7 @@ The file should include:
 | **MMHalBench** | [HuggingFace](https://huggingface.co/datasets/Shengcao1006/MMHal-Bench) |
 
 
----
+
 
 # 🔍 Extract Query for VQA
 
@@ -106,7 +104,7 @@ Queries are saved under:
 root/query_simple
 ```
 
----
+
 
 # 🎯 Extract Relevance Map (VQA)
 
@@ -126,7 +124,7 @@ python extract_r_map.py --dataset "DATASET"
 root/clipseg_maps
 ```
 
----
+
 
 # 🖼 Extract Relevance Map for Captioning
 
@@ -266,7 +264,7 @@ python main_caption.py --dataset "DATASET" --vlm "VISION LANGUAGE MODEL" --dnr -
 
 `--uq_alpha` is a weighting factor for hybrid uncertainty that adjusts how much faithfulness contributes relative to fidelity. 
 
----
+
 
 # 📖 Citation
 
@@ -281,12 +279,12 @@ If you use this repository or find it helpful in your research, please cite the 
 }
 ```
 
----
+
 
 # 🙌 Acknowledgment
 We sincerely thank all dataset creators and model authors for making their resources publicly available.  This project is made possible by the dedicated efforts of the research community and the open source ecosystem.
 
----
+
 ### 👥 Contributors
 I would like to express my sincere gratitude to the two individuals who assisted me with the code implementation.
 

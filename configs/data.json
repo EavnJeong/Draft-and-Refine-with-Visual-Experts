@@ -1,0 +1,36 @@
+{
+    "data_paths": {
+        "vqav2": "/media/Data1/qa/vqav2",
+        "vizwiz": "/media/Data1/qa/vizwiz/",
+        "gqa": "/media/Data1/qa/gqa",
+        "textvqa": "/media/Data1/qa/TextVQA",
+        "ocrvqa": "/media/Data1/qa/OCR-VQA",       
+
+        "cococaption": "/media/Data1/caption/coco",
+        "nocaps": "/media/Data1/caption/nocaps",
+        "flickr": "/media/Data1/caption/flickr",
+
+        "vcr": "/media/Data1/qa/vcr",
+        "vsr": "/media/Data1/qa/vsr",
+        
+        "okvqa": "/media/Data1/qa/okvqa",
+        "aokvqa": "/media/Data1/qa/aokvqa",
+        "sqa": "/media/Data1/qa/sqa",
+
+        "mme": "/media/Data1/comprehensive/MME_Benchmark",
+        "mmbench": "/media/Data1/comprehensive/MMBench",
+        "seedbench": "/media/Data1/comprehensive/SEED_Bench",
+        
+        "haloquest": "/media/Data1/hallucination/HaloQuest",
+        "mmhalbench": "/media/Data1/hallucination/MMHal_bench"
+    },
+    "eval_paths": {
+        "vizwiz": "/media/Data1/qa/vizwiz/annotations/val.json",
+        "gqa": "/media/Data1/qa/gqa/questions/testdev_balanced_questions.json",
+
+        "nocaps": "/media/Data1/caption/nocaps/nocap_val_4500_captions.json",
+
+        "okvqa": "/media/Data1/qa/okvqa/mscoco_val2014_annotations.json|/media/Data1/qa/okvqa/OpenEnded_mscoco_val2014_questions.json",
+        "aokvqa": "/media/Data1/qa/aokvqa/aokvqa_v1p0_val.json"
+    }
+}

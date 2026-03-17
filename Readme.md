@@ -1,4 +1,8 @@
-<h1 align="center">DnR: Draft and Refine with Visual Experts</h1>
+<h1 align="center">
+DnR: Draft and Refine with Visual Experts
+<br>
+<sub>🔥 Accepted to CVPR 2026</sub>
+</h1>
 
 <p align="center">
   <img src="fig/1.png" alt="-" width="400">
@@ -11,6 +15,7 @@
 <img src="https://img.shields.io/badge/Python-3.12-blue" />
 <img src="https://img.shields.io/badge/Framework-PyTorch 2.8-orange" />
 </p>
+
 
 
 # ✨ DnR Extraction Guide

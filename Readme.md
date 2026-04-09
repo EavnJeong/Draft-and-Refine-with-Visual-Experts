@@ -1,7 +1,7 @@
 <h1 align="center">
 DnR: Draft and Refine with Visual Experts
 <br>
-<sub>🔥 Accepted to CVPR 2026</sub>
+<sub> Accepted to CVPR 2026 Highlight🔥 </sub>
 </h1>
 
 <p align="center">

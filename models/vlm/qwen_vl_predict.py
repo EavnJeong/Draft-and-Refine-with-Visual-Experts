@@ -1994,3 +1994,88 @@ def infer_qwen_mmhalbench(
         results.append(decoded.capitalize())
 
     return results
+
+def build_multi_image_prompt(question, images, subset="ABCD"):
+    """Return labelled messages and images in exactly the same canonical order."""
+    from pathlib import Path
+    from process.interaction_credit import canonical
+
+    subset = canonical(subset)
+    labels = '' if subset == 'EMPTY' else subset
+    content, selected = [], []
+    for label in labels:
+        img = images[label]
+        if isinstance(img, (str, Path)):
+            with Image.open(img) as source:
+                img = source.convert('RGB')
+        content.extend([{'type': 'text', 'text': f'Image {label}:'}, {'type': 'image'}])
+        selected.append(img)
+    content.append({'type': 'text', 'text': question + '\nAnswer with exactly 0 or 1.'})
+    return [{'role': 'user', 'content': content}], selected
+
+
+@torch.inference_mode()
+def score_binary_candidates_qwen(model, processor, question, images, subset="ABCD"):
+    """Score candidate continuations; logp_* are normalized over {0, 1}.
+
+    candidate_loglik_* retain vocabulary-normalized conditional log likelihoods.
+    No generation, attention attribution, or sampling is used.
+    """
+    messages, selected = build_multi_image_prompt(question, images, subset)
+    empty_mode = 'not_empty' if selected else 'text_only'
+
+    def prepare(msgs, imgs):
+        prompt = processor.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+        kwargs = {'text': prompt, 'return_tensors': 'pt'}
+        if imgs:
+            kwargs['images'] = imgs
+        return processor(**kwargs)
+
+    try:
+        inputs = prepare(messages, selected)
+    except (ValueError, TypeError) as exc:
+        # Only processor errors explicitly identifying missing images qualify.
+        message = str(exc).lower()
+        missing_image = ('image' in message and
+                         any(s in message for s in ('none', 'empty', 'required', 'must provide', 'no image')))
+        if selected or not missing_image:
+            raise
+        messages[0]['content'] = [
+            {'type': 'text', 'text': 'Neutral blank image (contains no evidence):'},
+            {'type': 'image'}, *messages[0]['content']]
+        inputs = prepare(messages, [Image.new('RGB', (224, 224), (127, 127, 127))])
+        empty_mode = 'blank_image'
+    inputs = inputs.to(model.device)
+    candidates = [processor.tokenizer.encode(s, add_special_tokens=False) for s in ('0', '1')]
+    if any(not ids for ids in candidates) or candidates[0] == candidates[1]:
+        raise ValueError('Tokenizer must encode two distinct nonempty binary candidates')
+    if all(len(ids) == 1 for ids in candidates):
+        logits = model(**inputs, use_cache=False).logits[0, -1].float()
+        token_logp = torch.log_softmax(logits, dim=-1)
+        scores = torch.stack([token_logp[ids[0]] for ids in candidates])
+        scoring_mode = 'next_token'
+    else:
+        # Append candidate token IDs to the exact processed generation prefix.
+        # Recompute multimodal positions on each complete teacher-forced input.
+        scores = []
+        prefix_length = inputs['input_ids'].shape[1]
+        for ids in candidates:
+            extension = torch.tensor([ids], device=inputs['input_ids'].device)
+            forced = dict(inputs)
+            forced['input_ids'] = torch.cat([inputs['input_ids'], extension], dim=1)
+            forced['attention_mask'] = torch.cat([
+                inputs['attention_mask'], torch.ones_like(extension)], dim=1)
+            forced.pop('position_ids', None)
+            forced.pop('cache_position', None)
+            logits = model(**forced, use_cache=False).logits[0, prefix_length - 1:prefix_length + len(ids) - 1].float()
+            logp = torch.log_softmax(logits, dim=-1)
+            scores.append(logp.gather(1, extension[0, :, None]).sum())
+        scores = torch.stack(scores)
+        scoring_mode = 'teacher_forcing'
+    normalized = torch.log_softmax(scores, dim=0)
+    if not torch.isfinite(normalized).all():
+        raise ValueError('Nonfinite binary candidate scores')
+    return {'logp_0': normalized[0].item(), 'logp_1': normalized[1].item(),
+            'p_0': normalized[0].exp().item(), 'p_1': normalized[1].exp().item(),
+            'candidate_loglik_0': scores[0].item(), 'candidate_loglik_1': scores[1].item(),
+            'empty_mode': empty_mode, 'scoring_mode': scoring_mode}

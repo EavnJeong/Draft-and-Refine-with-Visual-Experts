@@ -1,0 +1,5 @@
+# Install torch==2.8.0 and torchvision==0.23.0 using the wheel for your CUDA environment.
+transformers==4.56.2
+accelerate==1.10.1
+Pillow==11.3.0
+numpy==2.2.6
